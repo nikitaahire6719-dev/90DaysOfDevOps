@@ -2,20 +2,19 @@
 
 ## 📌 Objective
 
-To troubleshoot the Nginx service by checking its process, service status, logs, identifying the root cause of failure, and restoring the service successfully.
+To practice Linux service troubleshooting by checking the Nginx process, service status, process IDs, logs, identifying a service startup issue, and verifying that the web server was running successfully.
 
 ---
 
-# 🛠️ Service Selected
+## 🛠️ Service Selected
 
 **Service:** Nginx
 
-**Purpose:**
-Nginx is a high-performance web server and reverse proxy server used to host web applications and websites.
+**Purpose:** Nginx is a high-performance web server and reverse proxy server used to host web applications and websites.
 
 ---
 
-# ✅ Step 1 – Check Running Process
+## ✅ Step 1 – Check Running Process
 
 ### Command
 
@@ -27,11 +26,11 @@ ps -ef | grep nginx
 
 The output showed one **Master Process** and four **Worker Processes**, confirming that the Nginx process was running.
 
-📷 **Screenshot:** `01-process-check.png`
+📷 **Screenshot:** `Screenshots/01-process-check.png`
 
 ---
 
-# ✅ Step 2 – Check Service Status
+## ✅ Step 2 – Check Service Status
 
 ### Command
 
@@ -49,11 +48,11 @@ Active: active (running)
 
 This confirmed that the Nginx service was running successfully.
 
-📷 **Screenshot:** `02-service-status.png`
+📷 **Screenshot:** `Screenshots/02-service-status.png`
 
 ---
 
-# ✅ Step 3 – Check Process ID (PID)
+## ✅ Step 3 – Check Process ID (PID)
 
 ### Command
 
@@ -63,15 +62,15 @@ pgrep nginx
 
 ### Observation
 
-The command returned five PIDs.
+The command returned multiple PIDs.
 
 The first PID belongs to the **Master Process**, while the remaining PIDs belong to the **Worker Processes**.
 
-📷 **Screenshot:** `03-pgrep.png`
+📷 **Screenshot:** `Screenshots/03-pgrep.png`
 
 ---
 
-# ✅ Step 4 – Check Recent Logs
+## ✅ Step 4 – Check Recent Logs
 
 ### Command
 
@@ -81,11 +80,68 @@ journalctl -u nginx -n 10
 
 ### Observation
 
-The logs showed the previous **bind() failed** error because Apache was already using Port 80.
+The logs contained the previous **bind() failed** error caused by Port 80 already being in use. The latest log entries confirmed that the Nginx service started successfully after the issue was resolved.
 
-The latest log entries confirmed that Nginx started successfully after resolving the issue.
+📷 **Screenshot:** `Screenshots/04-journalctl-logs.png`
 
-📷 **Screenshot:** `04-nginx-logs.png`
+---
+
+## ✅ Step 5 – Verify the Web Page
+
+### Command
+
+```bash
+curl http://localhost
+```
+
+### Observation
+
+Verified that the web page was being served successfully by the web server.
+
+📷 **Screenshot:** `Screenshots/05-curl-localhost.png`
+
+---
+
+## ✅ Step 6 – Verify HTTP Response Header
+
+### Command
+
+```bash
+curl -I http://localhost
+```
+
+### Observation
+
+The HTTP response header confirmed that the request was being served by **Nginx**.
+
+📷 **Screenshot:** `Screenshots/06-curl-header.png`
+
+---
+
+## ✅ Step 7 – Rename Default Web Page and Verify
+
+### Commands
+
+```bash
+sudo mv /var/www/html/index.html /var/www/html/index.html.bak
+ls -l /var/www/html
+```
+
+### Observation
+
+The Apache default `index.html` file was renamed. After refreshing the browser, the default **Nginx Welcome Page** was displayed.
+
+📷 **Screenshot:** `Screenshots/07-rename-and-verify.png`
+
+---
+
+## ✅ Step 8 – Verify Nginx Welcome Page
+
+### Observation
+
+Successfully verified that the default Nginx Welcome Page was displayed in the browser.
+
+📷 **Screenshot:** `Screenshots/08-nginx-welcome-page.png`
 
 ---
 
@@ -108,16 +164,11 @@ The following troubleshooting steps were performed:
 * Started the Nginx service again.
 * Verified that the service, processes, and PIDs were running correctly.
 
-📷 **Screenshots:**
-
-* `05-nginx-error.png`
-* `06-port80-check.png`
-* `07-stop-apache.png`
-* `08-start-nginx.png`
+📷 **Note:** Screenshots for these troubleshooting steps were not captured during the practical.
 
 ---
 
-# 📚 Commands Practiced
+## 📚 Commands Practiced
 
 ```bash
 ps -ef | grep nginx
@@ -128,15 +179,20 @@ journalctl -xeu nginx.service
 sudo lsof -i :80
 sudo systemctl stop apache2
 sudo systemctl start nginx
+curl http://localhost
+curl -I http://localhost
+sudo mv /var/www/html/index.html /var/www/html/index.html.bak
+ls -l /var/www/html
 ```
 
 ---
 
-# 🎯 What I Learned
+## 🎯 What I Learned
 
-* Difference between a Linux **process** and a **service**.
+* Difference between a Linux process and a Linux service.
 * How to check running processes using `ps` and `pgrep`.
 * How to verify service status using `systemctl`.
 * How to analyze service logs using `journalctl`.
 * How to identify a port conflict using `lsof`.
-* How to troubleshoot and restore a failed service by finding the root cause instead of simply restarting it.
+* How to verify a web server using `curl`.
+* How to troubleshoot and restore a failed Linux service by identifying the root cause instead of simply restarting the service.
